@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "module": "system",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outFile": "main.js",
+        "sourceMap": false
+    },
+  //  "include": [
+ //       "*"        
+ //   ],
+    "exclude": [
+        "node_modules"
+    ],
+     "files": [
+        "./node_modules/screeps-typescript-declarations/dist/screeps.d.ts",
+        "core.ts",
+        "config.ts",
+        "Factory.ts",
+        "creepFactory.ts",
+        "tickManager.ts",
+        "main.ts"
+    ]
+}
