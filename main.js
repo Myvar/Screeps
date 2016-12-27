@@ -3,14 +3,39 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var Planer = (function () {
+    function Planer() {
+    }
+    Planer.prototype.plan = function () {
+    };
+    return Planer;
+}());
 var Config = (function () {
     function Config() {
         this.creepConfig = [
             {
                 Name: "Worker",
                 CreepBody: [WORK, CARRY, MOVE],
-                Min: 5,
-                Max: 5
+                Min: 2,
+                Max: 2
+            },
+            {
+                Name: "Upgrader",
+                CreepBody: [WORK, CARRY, MOVE],
+                Min: 1,
+                Max: 1
+            },
+            {
+                Name: "builder",
+                CreepBody: [WORK, CARRY, MOVE],
+                Min: 2,
+                Max: 2
+            },
+            {
+                Name: "repear",
+                CreepBody: [WORK, CARRY, MOVE],
+                Min: 1,
+                Max: 1
             }
         ];
         this.MainSpawn = "Spawn1";
@@ -125,10 +150,193 @@ var Service = (function () {
     };
     return Service;
 }());
+var HarvestPlaner = (function (_super) {
+    __extends(HarvestPlaner, _super);
+    function HarvestPlaner() {
+        return _super.apply(this, arguments) || this;
+    }
+    HarvestPlaner.prototype.plan = function () {
+        for (var name in Game.creeps) {
+            if (name.split('_')[0] == "Worker") {
+                this.RunCreep(Game.creeps[name]);
+            }
+        }
+    };
+    HarvestPlaner.prototype.RunCreep = function (creep) {
+        if (!creep.memory.RoundRobin) {
+            creep.memory.RoundRobin = 0;
+        }
+        if (creep.carry.energy < creep.carryCapacity) {
+            var sources = creep.room.find(FIND_SOURCES);
+            if (creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(sources[1]);
+            }
+        }
+        else {
+            var targets = creep.room.find(FIND_STRUCTURES, {
+                filter: function (structure) {
+                    var stru = structure;
+                    var strut = structure;
+                    return (strut.structureType == STRUCTURE_EXTENSION ||
+                        strut.structureType == STRUCTURE_SPAWN ||
+                        strut.structureType == STRUCTURE_TOWER ||
+                        strut.structureType == STRUCTURE_CONTAINER && stru.energy < stru.energyCapacity);
+                }
+            });
+            if (targets.length > 0 && targets[creep.memory.RoundRobin].energy < targets[creep.memory.RoundRobin].energyCapacity) {
+                var ret = creep.transfer(targets[creep.memory.RoundRobin], RESOURCE_ENERGY);
+                if (ret == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targets[creep.memory.RoundRobin]);
+                }
+                else {
+                    if (creep.memory.RoundRobin >= targets.length) {
+                        creep.memory.RoundRobin++;
+                    }
+                }
+            }
+            else {
+                creep.moveTo(Game.flags['Bord']);
+            }
+        }
+    };
+    return HarvestPlaner;
+}(Planer));
+var upgraderPlaner = (function (_super) {
+    __extends(upgraderPlaner, _super);
+    function upgraderPlaner() {
+        return _super.apply(this, arguments) || this;
+    }
+    upgraderPlaner.prototype.plan = function () {
+        for (var name in Game.creeps) {
+            if (name.split('_')[0] == "Upgrader") {
+                this.RunCreep(Game.creeps[name]);
+            }
+        }
+    };
+    upgraderPlaner.prototype.RunCreep = function (creep) {
+        if (creep.memory.upgrading && creep.carry.energy == 0) {
+            creep.memory.upgrading = false;
+            creep.say('harvesting');
+        }
+        if (!creep.memory.upgrading && creep.carry.energy == creep.carryCapacity) {
+            creep.memory.upgrading = true;
+            creep.say('upgrading');
+        }
+        if (creep.memory.upgrading) {
+            if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.controller);
+            }
+        }
+        else {
+            var sources = creep.room.find(FIND_SOURCES);
+            if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(sources[0]);
+            }
+        }
+    };
+    return upgraderPlaner;
+}(Planer));
+var builderPlaner = (function (_super) {
+    __extends(builderPlaner, _super);
+    function builderPlaner() {
+        return _super.apply(this, arguments) || this;
+    }
+    builderPlaner.prototype.plan = function () {
+        for (var name in Game.creeps) {
+            if (name.split('_')[0] == "builder") {
+                this.RunCreep(Game.creeps[name]);
+            }
+        }
+    };
+    builderPlaner.prototype.RunCreep = function (creep) {
+        if (!creep.memory.RoundRobin) {
+            creep.memory.RoundRobin = 0;
+        }
+        if (creep.memory.building && creep.carry.energy == 0) {
+            creep.memory.building = false;
+            creep.say('harvesting');
+        }
+        if (!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
+            creep.memory.building = true;
+            creep.say('building');
+        }
+        if (creep.memory.building) {
+            var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+            if (targets.length > 0) {
+                if (creep.build(targets[creep.memory.RoundRobin]) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targets[creep.memory.RoundRobin]);
+                }
+                if (targets[creep.memory.RoundRobin].progress >= targets[creep.memory.RoundRobin].progressTotal) {
+                    if (creep.memory.RoundRobin >= targets.length) {
+                        creep.memory.RoundRobin++;
+                    }
+                }
+            }
+            else {
+                creep.moveTo(Game.flags['Bord']);
+            }
+        }
+        else {
+            var sources = creep.room.find(FIND_SOURCES);
+            if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(sources[0]);
+            }
+        }
+    };
+    return builderPlaner;
+}(Planer));
+var repearPlaner = (function (_super) {
+    __extends(repearPlaner, _super);
+    function repearPlaner() {
+        return _super.apply(this, arguments) || this;
+    }
+    repearPlaner.prototype.plan = function () {
+        for (var name in Game.creeps) {
+            if (name.split('_')[0] == "repear") {
+                this.RunCreep(Game.creeps[name]);
+            }
+        }
+    };
+    repearPlaner.prototype.RunCreep = function (creep) {
+        if (!creep.memory.reparing) {
+            creep.memory.reparing = false;
+        }
+        if (creep.memory.reparing && creep.carry.energy == 0) {
+            creep.memory.reparing = false;
+            creep.say('harvesting');
+        }
+        if (!creep.memory.reparing && creep.carry.energy == creep.carryCapacity) {
+            creep.memory.reparing = true;
+            creep.say('reparing');
+        }
+        if (creep.memory.reparing) {
+            var targate = creep.room.find(FIND_STRUCTURES, {
+                filter: function (structure) {
+                    var strut = structure;
+                    return (strut.hits < strut.hitsMax);
+                }
+            });
+            if (targate.length > 0) {
+                if (creep.repair(targate[0]) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targate[0]);
+                }
+            }
+        }
+    };
+    return repearPlaner;
+}(Planer));
 var servies = new Ticker();
 var cfg = new Config();
 var creepFact = new CreepFactory(cfg);
+var HarvestPlan = new HarvestPlaner();
+var upgraderPlan = new upgraderPlaner();
+var builderPlan = new builderPlaner();
+var repearPlan = new repearPlaner();
 servies.addService(new Service(function () { creepFact.Tick(); }));
+servies.addService(new Service(function () { HarvestPlan.plan(); }));
+servies.addService(new Service(function () { upgraderPlan.plan(); }));
+servies.addService(new Service(function () { builderPlan.plan(); }));
+servies.addService(new Service(function () { repearPlan.plan(); }));
 module.exports.loop = function () {
     servies.tick();
 };

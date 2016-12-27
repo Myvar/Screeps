@@ -16,10 +16,15 @@
      "files": [
         "./node_modules/screeps-typescript-declarations/dist/screeps.d.ts",
         "core.ts",
+        "planer.ts",
         "config.ts",
         "Factory.ts",
         "creepFactory.ts",
         "tickManager.ts",
+        "harvestPlaner.ts",
+        "upgraderPlaner.ts",
+        "builderPlaner.ts",
+        "repearPlaner.ts",
         "main.ts"
     ]
 }

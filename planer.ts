@@ -1,0 +1,6 @@
+class Planer
+{
+    plan() : void
+    {
+    }
+}

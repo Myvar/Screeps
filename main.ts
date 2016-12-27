@@ -20,8 +20,18 @@ var cfg : Config = new Config();
 //factorys
 var creepFact : CreepFactory = new CreepFactory(cfg);
 
+//panners
+var HarvestPlan : HarvestPlaner = new HarvestPlaner();
+var upgraderPlan : upgraderPlaner = new upgraderPlaner();
+var builderPlan : builderPlaner = new builderPlaner();
+var repearPlan : repearPlaner = new repearPlaner();
+
 //servies
 servies.addService(new Service(function() { creepFact.Tick(); }));
+servies.addService(new Service(function() { HarvestPlan.plan(); }));
+servies.addService(new Service(function() { upgraderPlan.plan(); }));
+servies.addService(new Service(function() { builderPlan.plan(); }));
+servies.addService(new Service(function() { repearPlan.plan(); }));
 
 module.exports.loop = function () {
     servies.tick();
