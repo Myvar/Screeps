@@ -1,38 +1,27 @@
 declare var module: any;
 
-var servies = new Ticker();
-
-//tests
-/*
-servies.addService(new Service(function() { console.log("test") }));
-
-var srv2 = new Service(function() { console.log("test1") });
-srv2.ExecutionRule = ServiceExecutionRule.Event;
-srv2.eventName = "botDied";
-servies.addService(srv2);
-
-servies.fireEvent("botDied");
-*/
 
 //cfg
 var cfg : Config = new Config();
 
-//factorys
-var creepFact : CreepFactory = new CreepFactory(cfg);
+//Rooms
+var rooms : RoomWraper[] = [new RoomWraper(Game.spawns['Spawn1'].room.name)];
 
-//panners
-var HarvestPlan : HarvestPlaner = new HarvestPlaner();
-var upgraderPlan : upgraderPlaner = new upgraderPlaner();
-var builderPlan : builderPlaner = new builderPlaner();
-var repearPlan : repearPlaner = new repearPlaner();
+function tick()
+{
+    for(var i of rooms)
+    {
+        i.tick();
+    }
+}
 
-//servies
-servies.addService(new Service(function() { creepFact.Tick(); }));
-servies.addService(new Service(function() { HarvestPlan.plan(); }));
-servies.addService(new Service(function() { upgraderPlan.plan(); }));
-servies.addService(new Service(function() { builderPlan.plan(); }));
-servies.addService(new Service(function() { repearPlan.plan(); }));
+//init all
+tick();
+
+//creeps controler
+var creeps : Creeps = new Creeps();
 
 module.exports.loop = function () {
-    servies.tick();
+    tick();
+    creeps.Tick();
 }

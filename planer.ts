@@ -1,6 +1,0 @@
-class Planer
-{
-    plan() : void
-    {
-    }
-}
