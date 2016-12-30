@@ -4,7 +4,12 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "outDir": "out",
-        "sourceMap": false
+        "sourceMap": false,
+        "rootDirs": [
+            "src/ScreepOS",
+            "src/Programs",
+            "src/Commen"
+        ]
     },
     "exclude": [
         "node_modules"

@@ -1,1 +1,1 @@
-tsc -p tsconfig.json --watch --target ES5
+tsc -p tsconfig.json --noResolve --watch --target ES5
