@@ -15,6 +15,9 @@ class MinimalProgram extends p.Program {
             if (creep.room.name = this.room) {
                 count++;
                 this.creepFillSpawn(creep);
+                if (creep.memory.bord) {
+                    this.creepBord(creep);
+                }
             }
         }
 
@@ -58,7 +61,7 @@ class MinimalProgram extends p.Program {
             creep.memory.RoundRobin = 0;
         }
 
-        if (creep.carry.energy < creep.carryCapacity) {
+        if (!creep.memory.bord && creep.carry.energy < creep.carryCapacity) {
             var sources = creep.room.find<Source>(FIND_SOURCES);
             if (creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(sources[1]);
@@ -76,6 +79,7 @@ class MinimalProgram extends p.Program {
                 }
             });
             if (targets.length > 0 && (targets[creep.memory.RoundRobin] as Source).energy < (targets[creep.memory.RoundRobin] as Source).energyCapacity) {
+                creep.memory.bord = false;
                 var ret = creep.transfer((targets[creep.memory.RoundRobin] as Structure), RESOURCE_ENERGY);
 
                 if (ret == ERR_NOT_IN_RANGE) {
@@ -83,12 +87,12 @@ class MinimalProgram extends p.Program {
                 }
                 else {
                     if (creep.memory.RoundRobin >= targets.length) {
-                        creep.memory.RoundRobin++;
+                        creep.memory.RoundRobin = 0;
                     }
                 }
             }
             else {
-                this.creepBord(creep);
+                creep.memory.bord = true;
             }
         }
     }
