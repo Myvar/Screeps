@@ -24,6 +24,10 @@ var MinimalProgram = (function (_super) {
         if (count < this.MAX_CREEPS) {
             Game.rooms[this.room].find(FIND_MY_SPAWNS)[0].createCreep([WORK, CARRY, MOVE], "aCreep_" + String(Math.random()).split('.')[1]);
         }
+        var hostiles = Game.rooms[this.room].find(FIND_HOSTILE_CREEPS);
+        if (hostiles.length > 0) {
+            Game.rooms[this.room].controller.activateSafeMode();
+        }
     };
     MinimalProgram.prototype.creepBord = function (creep) {
         if (creep.memory.upgrading && creep.carry.energy == 0) {

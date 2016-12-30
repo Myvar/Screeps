@@ -1769,6 +1769,7 @@ declare class Room {
      * @returns A path array.
      */
     static deserializePath(path: string): PathStep[];
+    
 }
 /**
  * An energy source object. Can be harvested by creeps with a WORK body part.
@@ -1988,6 +1989,8 @@ declare class StructureController extends OwnedStructure {
      * Make your claimed controller neutral again.
      */
     unclaim(): number;
+
+    activateSafeMode() : void;
 }
 /**
  * Contains energy which can be spent on spawning bigger creeps. Extensions can
